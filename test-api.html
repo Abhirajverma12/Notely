@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        #result { white-space: pre-wrap; background: #f8f9fa; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 API Connection Test</h1>
+    
+    <div class="test-section">
+        <h3>Step 1: Check Config Loading</h3>
+        <button onclick="testConfig()">Test Config Loading</button>
+        <div id="configResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Step 2: Test API Connection</h3>
+        <button onclick="testAPI()">Test API Call</button>
+        <div id="apiResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Step 3: Test with Sample Text</h3>
+        <textarea id="sampleText" rows="4" cols="50" placeholder="Enter some text to improve...">This is a test note with some grammar issues. I want to see if the AI can improve it.</textarea>
+        <br><br>
+        <button onclick="testImprovement()">Test AI Improvement</button>
+        <div id="improvementResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Debug Information</h3>
+        <div id="debugInfo"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const result = document.getElementById('debugInfo');
+            result.innerHTML += `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+        }
+
+        function testConfig() {
+            const result = document.getElementById('configResult');
+            try {
+                if (typeof CONFIG === 'undefined') {
+                    result.innerHTML = '<div class="error">❌ CONFIG is undefined</div>';
+                    log('CONFIG is undefined', 'error');
+                    return;
+                }
+                
+                if (!CONFIG.GROQ_API_KEY) {
+                    result.innerHTML = '<div class="error">❌ GROQ_API_KEY is missing</div>';
+                    log('GROQ_API_KEY is missing', 'error');
+                    return;
+                }
+                
+                if (CONFIG.GROQ_API_KEY === 'YOUR_GROQ_API_KEY_HERE') {
+                    result.innerHTML = '<div class="error">❌ API key is still placeholder</div>';
+                    log('API key is still placeholder', 'error');
+                    return;
+                }
+                
+                result.innerHTML = '<div class="success">✅ Config loaded successfully</div>';
+                log('Config loaded successfully', 'success');
+                log(`API Key: ${CONFIG.GROQ_API_KEY.substring(0, 10)}...`, 'info');
+                
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                log(`Config error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAPI() {
+            const result = document.getElementById('apiResult');
+            result.innerHTML = '🔄 Testing API connection...';
+            
+            try {
+                if (!CONFIG.GROQ_API_KEY) {
+                    throw new Error('API key not configured');
+                }
+
+                const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+                
+                log(`Making request to: ${API_URL.substring(0, 50)}...`, 'info');
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${CONFIG.GROQ_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "llama3-8b-8192",
+                        messages: [
+                            {
+                                role: "user",
+                                content: "Hello, this is a test message. Please respond with 'API is working!'"
+                            }
+                        ],
+                        temperature: 0.3,
+                        max_tokens: 100
+                    })
+                });
+                
+                log(`Response status: ${response.status}`, 'info');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                log('API response received', 'success');
+                log(`Response data: ${JSON.stringify(data, null, 2)}`, 'info');
+                
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    result.innerHTML = '<div class="success">✅ API connection successful!</div>';
+                } else {
+                    throw new Error('Invalid response format from API');
+                }
+                
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ API Error: ${error.message}</div>`;
+                log(`API error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testImprovement() {
+            const result = document.getElementById('improvementResult');
+            const sampleText = document.getElementById('sampleText').value;
+            
+            if (!sampleText.trim()) {
+                result.innerHTML = '<div class="error">❌ Please enter some text to improve</div>';
+                return;
+            }
+            
+            result.innerHTML = '🔄 Improving text with AI...';
+            
+            try {
+                if (!CONFIG.GROQ_API_KEY) {
+                    throw new Error('API key not configured');
+                }
+
+                const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+                
+                const prompt = `Please improve the following text for better grammar, clarity, and readability. Keep the original meaning and tone, but make it more polished and professional. Here's the text:
+
+"${sampleText}"
+
+Please return only the improved text without any additional explanations or formatting.`;
+                
+                const requestBody = {
+                    model: "llama3-8b-8192",
+                    messages: [
+                        {
+                            role: "user",
+                            content: prompt
+                        }
+                    ],
+                    temperature: 0.3,
+                    max_tokens: 2048,
+                    top_p: 0.95
+                };
+                
+                log('Sending improvement request...', 'info');
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${CONFIG.GROQ_API_KEY}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    const improvedContent = data.choices[0].message.content.trim();
+                    result.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Text Improved Successfully!</h4>
+                            <strong>Original:</strong><br>
+                            <em>${sampleText}</em><br><br>
+                            <strong>Improved:</strong><br>
+                            <em>${improvedContent}</em>
+                        </div>
+                    `;
+                    log('Text improvement successful', 'success');
+                } else {
+                    throw new Error('Invalid response format from API');
+                }
+                
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Improvement Error: ${error.message}</div>`;
+                log(`Improvement error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run config test on page load
+        window.addEventListener('load', () => {
+            log('Page loaded, starting tests...', 'info');
+            testConfig();
+        });
+    </script>
+</body>
+</html> 

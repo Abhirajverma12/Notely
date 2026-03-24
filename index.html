@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notely - AI Enhanced</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700|Open+Sans:400,700|Lato:400,700|Montserrat:400,700&display=swap" rel="stylesheet">
+    <!-- jsPDF and html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <!-- About Us Modal -->
+    <div id="aboutModal" class="about-modal hidden">
+        <div class="about-modal-content">
+            <button class="about-modal-close" id="aboutModalClose" title="Close">&times;</button>
+            <img src="Project-Notely.png" alt="Notely Screenshot" class="about-screenshot about-screenshot-styled">
+            <!-- <h2>Project - Notely</h2>
+            <h3>Project Overview</h3>
+            <p>Notely is a cutting-edge AI-powered notes application with a stunning nebula-inspired design featuring deep blues, purples, and subtle pinks.</p>
+            <ul>
+                <li><b>Project:</b> Notely</li>
+                <li><b>Type:</b> Modern AI-powered Notes App</li>
+                <li><b>Target Users:</b> Students, professionals, note-takers</li>
+                <li><b>Design Philosophy:</b> Clean, futuristic interface</li>
+            </ul>
+            <h3>Key Technologies</h3>
+            <ul>
+                <li><b>Frontend:</b> HTML5, CSS3, JavaScript ES6+</li>
+                <li><b>Export:</b> jsPDF, html2canvas</li>
+                <li><b>AI Integration:</b> Groq API with Llama 3 model</li>
+                <li><b>Features:</b> Responsive layout, dark mode, custom SVG logo</li>
+            </ul>
+            <h3>Core Features</h3>
+            <div class="about-features">
+                <div><b>Rich Text Editing</b><br>Create, edit, delete, and view notes with advanced formatting options including bold, italic, and lists.</div>
+                <div><b>AI-Powered Enhancement</b><br>Leverage Groq API and Llama 3 model to improve note quality with intelligent suggestions and corrections.</div>
+                <div><b>PDF Export</b><br>Export notes as professionally styled PDF documents with selectable text for sharing or archiving.</div>
+                <div><b>Smart Storage</b><br>Automatic deletion of notes older than 15 days with 10MB localStorage limit and visual usage bar.</div>
+            </div> -->
+        </div>
+    </div>
+    <!-- Animated background particles -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Theme toggle button -->
+    <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+        🌙
+    </button>
+    
+    <!-- Floating action button -->
+    <button class="fab" id="fab" title="Quick Add Note">
+        ✏️
+    </button>
+    
+    <!-- Export as PDF button -->
+    <!-- <button class="export-pdf" id="exportPdfBtn" title="Export all notes as PDF">
+        📄 Export as PDF
+    </button> -->
+    
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <div class="user-info">
+                    <span id="userName">Welcome</span>
+                    <button class="logout-btn" id="logoutBtn" title="Logout">🚪 Logout</button>
+                </div>
+                <button class="about-btn" id="aboutBtn" title="About Notely">About Us</button>
+            </div>
+            <h1><span class="logo-nn-svg">
+                <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-nn-svg-styled">
+                  <defs>
+                    <radialGradient id="nebulaCircle" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#aeefff"/>
+                      <stop offset="60%" stop-color="#304ffe"/>
+                      <stop offset="100%" stop-color="#0a192f"/>
+                    </radialGradient>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                      <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  <circle cx="26" cy="26" r="24" fill="url(#nebulaCircle)" filter="url(#glow)"/>
+                  <ellipse cx="18" cy="20" rx="7" ry="5" fill="#fff" opacity="0.10"/>
+                  <ellipse cx="34" cy="32" rx="8" ry="6" fill="#fff" opacity="0.08"/>
+                  <text x="50%" y="58%" text-anchor="middle" font-family="'Montserrat', 'Roboto', Arial, sans-serif" font-size="28" font-weight="900" fill="#fff" opacity="0.96" class="logo-nn-drop-shadow">N</text>
+                </svg>
+            </span> Notely</h1>
+            <p>Create, organize, and improve your notes with AI</p>
+            <div class="storage-status" id="storageStatus">
+                <div class="storage-bar">
+                    <div class="storage-fill" id="storageFill"></div>
+                </div>
+                <span class="storage-text" id="storageText">Storage: 0%</span>
+            </div>
+        </header>
+
+        <div class="add-note-section" id="addNoteSection">
+            <input type="text" id="noteTitle" placeholder="Note title..." maxlength="100">
+            <!-- Formatting Toolbar -->
+            <div class="toolbar" id="toolbar">
+                <label for="fontFamily" class="label-margin-right">Font Family</label>
+                <select id="fontFamily" title="Font Family">
+                    <option value="sans-serif">Sans</option>
+                    <option value="serif">Serif</option>
+                    <option value="monospace">Monospace</option>
+                    <option value="cursive">Cursive</option>
+                    <option value="fantasy">Fantasy</option>
+                    <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                    <option value="Roboto, sans-serif">Roboto</option>
+                    <option value="'Open Sans', sans-serif">Open Sans</option>
+                    <option value="Lato, sans-serif">Lato</option>
+                    <option value="Montserrat, sans-serif">Montserrat</option>
+                </select>
+                <label for="fontSize" class="label-margin-both">Font Size</label>
+                <select id="fontSize" title="Font Size">
+                    <option value="14px">14</option>
+                    <option value="16px" selected>16</option>
+                    <option value="18px">18</option>
+                    <option value="20px">20</option>
+                    <option value="24px">24</option>
+                    <option value="28px">28</option>
+                </select>
+                <button type="button" class="toolbar-btn" data-command="bold" title="Bold"><b>B</b></button>
+                <button type="button" class="toolbar-btn" data-command="italic" title="Italic"><i>I</i></button>
+                <button type="button" class="toolbar-btn" data-command="underline" title="Underline"><u>U</u></button>
+                <button type="button" class="toolbar-btn" data-command="strikeThrough" title="Strikethrough"><s>S</s></button>
+                <input type="color" id="fontColor" title="Text Color">
+                <input type="color" id="bgColor" title="Highlight">
+            </div>
+            <!-- Rich text editable area -->
+            <div id="noteContent" class="rich-text" contenteditable="true" placeholder="Write your note content here..."></div>
+            <button id="addNoteBtn">Add Note</button>
+        </div>
+
+        <div class="notes-container" id="notesContainer">
+            <!-- Notes will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Loading overlay for AI improvement -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Improving your note with AI...</p>
+        </div>
+    </div>
+
+    <!-- Note Modal for full note view -->
+    <div id="noteModal" class="note-modal hidden">
+        <div class="note-modal-content">
+            <button class="note-modal-close" id="noteModalClose" title="Close">&times;</button>
+            <h2 id="modalNoteTitle"></h2>
+            <div id="modalNoteDate" class="modal-note-date"></div>
+            <div id="modalNoteContent" class="modal-note-content modal-note-content-styled"></div>
+        </div>
+    </div>
+
+    <div id="authLoadingOverlay" class="loading-overlay" style="display:none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Checking authentication...</p>
+        </div>
+    </div>
+
+    <button id="showCurrentUserBtn" style="display:none; position:fixed; bottom:20px; left:20px; z-index:2000;">Show Current User</button>
+    <div id="currentUserInfo" style="display:none; position:fixed; bottom:60px; left:20px; background:#222; color:#fff; padding:16px; border-radius:8px; z-index:2001;"></div>
+
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Show loading overlay during auth check
+        const authLoadingOverlay = document.getElementById('authLoadingOverlay');
+        if (authLoadingOverlay) authLoadingOverlay.style.display = 'flex';
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!AuthSystem.isLoggedIn()) {
+                window.location.href = 'login.html';
+            } else {
+                if (authLoadingOverlay) authLoadingOverlay.style.display = 'none';
+            }
+        });
+        // Admin-only: Show current user info
+        const adminEmail = "bhadouriaabhinavsingh@gmail.com"; // Set your admin email here
+        const currentUser = JSON.parse(localStorage.getItem('notely_current_user'));
+        const showCurrentUserBtn = document.getElementById('showCurrentUserBtn');
+        const currentUserInfo = document.getElementById('currentUserInfo');
+        if (currentUser && currentUser.email === adminEmail) {
+            showCurrentUserBtn.style.display = 'block';
+        }
+        showCurrentUserBtn && showCurrentUserBtn.addEventListener('click', () => {
+            if (currentUserInfo.style.display === 'none') {
+                const allUsers = JSON.parse(localStorage.getItem('notely_users')) || [];
+                currentUserInfo.textContent = JSON.stringify(allUsers, null, 2);
+                currentUserInfo.style.display = 'block';
+            } else {
+                currentUserInfo.style.display = 'none';
+            }
+        });
+    </script>
+    <script src="script.js"></script>
+    <footer class="footer">
+        <div class="footer-content">
+            <span>&copy; 2025 Abhinav Singh Bhadouria. All rights reserved.</span>
+            <span class="footer-divider">|</span>
+            <span>Sample project for testing and betterment purposes.</span>
+        </div>
+    </footer>
+</body>
+</html> 

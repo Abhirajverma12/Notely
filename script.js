@@ -8,7 +8,7 @@ class NotesApp {
             if (!window.location.pathname.includes('login.html') && 
                 !window.location.pathname.includes('signup.html') &&
                 !window.location.pathname.includes('landing.html')) {
-                window.location.href = 'login.html';
+                window.location.href = 'landing.html';
                 return;
             }
             return;

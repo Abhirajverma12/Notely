@@ -143,7 +143,7 @@ class AuthSystem {
             // Redirect to main app
             setTimeout(() => {
                 this.redirectToApp();
-            }, 1500);
+            }, 350);
             
         } catch (error) {
             this.showMessage(error.message, 'error');
@@ -215,12 +215,10 @@ class AuthSystem {
             
             this.showMessage('Account created successfully! Redirecting...', 'success');
             
-            // Wait for 1.5s to show the message, then redirect to main app
+            // Redirect to main app
             setTimeout(() => {
-                console.log('Redirecting to index.html after signup...');
                 this.redirectToApp();
-                console.log('Redirect toApp called');
-            }, 1500);
+            }, 350);
             
         } catch (error) {
             this.showMessage(error.message, 'error');

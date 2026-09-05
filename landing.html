@@ -596,7 +596,7 @@
 
     <!-- Navigation -->
     <header class="landing-nav">
-        <a href="landing.html" class="brand">
+        <a href="index.html" class="brand">
             <div class="brand-logo-wrap">
                 <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="26" cy="26" r="24" fill="#ffffff" fill-opacity="0.15"/>
@@ -606,10 +606,10 @@
             <span class="brand-name">Notely</span>
         </a>
 
-        <div class="nav-actions">
+        <div class="nav-actions" id="navActions">
             <button class="btn-theme" id="themeToggle" title="Toggle Light/Dark Theme">🌙</button>
-            <a href="login.html" class="btn-link">Sign In</a>
-            <a href="signup.html" class="btn-primary-nav">Get Started</a>
+            <a href="login.html" class="btn-link" id="navLoginLink">Sign In</a>
+            <a href="signup.html" class="btn-primary-nav" id="navSignupLink">Get Started</a>
         </div>
     </header>
 
@@ -629,11 +629,11 @@
             Notely combines distraction-free rich text editing, one-click AI polishing, custom typography, and instant PDF exports into a single lightning-fast workspace.
         </p>
 
-        <div class="hero-cta-group">
-            <a href="signup.html" class="hero-btn-main">
+        <div class="hero-cta-group" id="heroCtaGroup">
+            <a href="signup.html" class="hero-btn-main" id="heroPrimaryCta">
                 Create Free Account 🚀
             </a>
-            <a href="login.html" class="hero-btn-outline">
+            <a href="login.html" class="hero-btn-outline" id="heroSecondaryCta">
                 Open Workspace →
             </a>
         </div>
@@ -805,10 +805,30 @@
 
     <script src="auth.js"></script>
     <script>
-        // Redirect if already logged in
+        // Check if user is logged in to adapt CTAs
         document.addEventListener('DOMContentLoaded', () => {
-            if (AuthSystem.isLoggedIn()) {
-                window.location.href = 'index.html';
+            const user = AuthSystem.getCurrentUser();
+            if (user) {
+                const navLoginLink = document.getElementById('navLoginLink');
+                const navSignupLink = document.getElementById('navSignupLink');
+                const heroPrimaryCta = document.getElementById('heroPrimaryCta');
+                const heroSecondaryCta = document.getElementById('heroSecondaryCta');
+
+                if (navLoginLink) {
+                    navLoginLink.textContent = `Hi, ${user.fullName.split(' ')[0]}`;
+                    navLoginLink.href = 'app.html';
+                }
+                if (navSignupLink) {
+                    navSignupLink.textContent = 'Go to Workspace →';
+                    navSignupLink.href = 'app.html';
+                }
+                if (heroPrimaryCta) {
+                    heroPrimaryCta.textContent = 'Open My Workspace 🚀';
+                    heroPrimaryCta.href = 'app.html';
+                }
+                if (heroSecondaryCta) {
+                    heroSecondaryCta.style.display = 'none';
+                }
             }
         });
 

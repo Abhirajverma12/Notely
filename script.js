@@ -7,8 +7,9 @@ class NotesApp {
             // Only redirect if we're not already on the login page
             if (!window.location.pathname.includes('login.html') && 
                 !window.location.pathname.includes('signup.html') &&
+                !window.location.pathname.includes('index.html') &&
                 !window.location.pathname.includes('landing.html')) {
-                window.location.href = 'landing.html';
+                window.location.href = 'index.html';
                 return;
             }
             return;

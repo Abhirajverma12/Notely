@@ -13,9 +13,9 @@ class AuthSystem {
         this.createParticles();
         this.bindEvents();
         
-        // Check if user is already logged in and not on the main app page
+        // Check if user is already logged in on login or signup pages
         const currentPage = window.location.pathname.split('/').pop();
-        if (this.currentUser && currentPage !== 'index.html') {
+        if (this.currentUser && (currentPage === 'login.html' || currentPage === 'signup.html')) {
             this.redirectToApp();
         }
     }
@@ -280,12 +280,12 @@ class AuthSystem {
     }
     
     redirectToApp() {
-        window.location.href = 'index.html';
+        window.location.href = 'app.html';
     }
     
     static logout() {
         localStorage.removeItem('notely_current_user');
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     }
     
     static getCurrentUser() {
